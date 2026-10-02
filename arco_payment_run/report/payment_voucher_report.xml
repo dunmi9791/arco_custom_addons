@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_voucher" model="ir.actions.report">
+        <field name="name">Payment Voucher</field>
+        <field name="model">arco.payment.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_payment_run.report_payment_voucher</field>
+        <field name="report_file">arco_payment_run.report_payment_voucher</field>
+        <field name="print_report_name">'Payment Voucher - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_arco_payment_run"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_payment_voucher">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Payment Voucher <span t-field="o.name"/></h2>
+                        <div class="row mb-3">
+                            <div class="col-4"><strong>Pay from:</strong> <span t-field="o.journal_id"/></div>
+                            <div class="col-4"><strong>Payment date:</strong> <span t-field="o.payment_date"/></div>
+                            <div class="col-4"><strong>Status:</strong> <span t-field="o.state"/></div>
+                        </div>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Vendor</th><th>Bill</th><th>Vendor Ref.</th><th>Due</th>
+                                    <th>Beneficiary Account</th><th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="l">
+                                    <td><span t-field="l.partner_id"/></td>
+                                    <td><span t-field="l.move_id.name"/></td>
+                                    <td><span t-field="l.bill_ref"/></td>
+                                    <td><span t-field="l.invoice_date_due"/></td>
+                                    <td><span t-esc="l.partner_bank_id.display_name"/></td>
+                                    <td class="text-end"><span t-field="l.amount_to_pay"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end"><strong t-field="o.amount_total"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <p><strong>Amount in words:</strong> <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/></p>
+                        <p t-if="o.narration"><strong>Narration:</strong> <span t-field="o.narration"/></p>
+                        <h5 class="mt-4">Approvals</h5>
+                        <table class="table table-sm">
+                            <thead><tr><th>Step</th><th>Approved by</th><th>Date</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td>Prepared</td><td><span t-field="o.prepared_by"/></td>
+                                    <td><span t-field="o.create_date" t-options="{'widget': 'date'}"/></td><td>-</td>
+                                </tr>
+                                <tr t-foreach="o.review_ids" t-as="r">
+                                    <td><span t-field="r.name"/></td>
+                                    <td><span t-field="r.done_by"/></td>
+                                    <td><span t-field="r.reviewed_date"/></td>
+                                    <td><span t-field="r.status"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

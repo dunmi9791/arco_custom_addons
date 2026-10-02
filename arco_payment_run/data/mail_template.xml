@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_remittance_advice" model="mail.template">
+        <field name="name">ARCO: Remittance Advice</field>
+        <field name="model_id" ref="model_arco_payment_run_line"/>
+        <field name="subject">Remittance advice {{ object.run_id.name }} - {{ object.run_id.company_id.name }}</field>
+        <field name="email_from">{{ (object.run_id.company_id.email or user.email) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="body_html" type="html">
+<div>
+    <p>Dear <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>Please be advised that <t t-out="object.run_id.company_id.name or ''"/> has paid
+        <strong><t t-out="format_amount(object.amount_to_pay, object.currency_id) or ''"/></strong>
+        on <t t-out="format_date(object.run_id.payment_date) or ''"/> in settlement of:</p>
+    <ul>
+        <li>Bill <t t-out="object.move_id.name or ''"/>
+            <t t-if="object.bill_ref"> (your ref. <t t-out="object.bill_ref"/>)</t></li>
+    </ul>
+    <p>Beneficiary account: <t t-out="object.partner_bank_id.display_name or '-'"/></p>
+    <p>Where withholding tax or NCD levy was deducted at source, the credit note/receipt will follow separately.</p>
+    <p>Regards,<br/><t t-out="object.run_id.company_id.name or ''"/> Finance</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rct_invoice,arco.customer.receipt billing,model_arco_customer_receipt,account.group_account_invoice,1,1,1,0
+access_rct_line_invoice,arco.customer.receipt.line billing,model_arco_customer_receipt_line,account.group_account_invoice,1,1,1,1
+access_rct_manager,arco.customer.receipt manager,model_arco_customer_receipt,account.group_account_manager,1,1,1,1
+access_rct_auditor,arco.customer.receipt auditor,model_arco_customer_receipt,arco_base.group_arco_auditor,1,0,0,0
+access_rct_line_auditor,arco.customer.receipt.line auditor,model_arco_customer_receipt_line,arco_base.group_arco_auditor,1,0,0,0

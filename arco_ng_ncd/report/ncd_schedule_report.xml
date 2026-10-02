@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_ncd_schedule" model="ir.actions.report">
+        <field name="name">NCD Levy Schedule</field>
+        <field name="model">arco.ncd.remittance</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_ng_ncd.report_ncd_schedule</field>
+        <field name="report_file">arco_ng_ncd.report_ncd_schedule</field>
+        <field name="print_report_name">'NCD Schedule - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_arco_ncd_remittance"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_ncd_schedule">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3>Nigerian Content Development Fund - Levy Schedule</h3>
+                        <p>Remittance <strong t-field="o.name"/> | Period <span t-field="o.date_from"/> to <span t-field="o.date_to"/>
+                            | NCDMB Ref. <span t-esc="o.ncdmb_receipt or '-'"/></p>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr><th>#</th><th>Date</th><th>Contractor</th><th>Document</th>
+                                    <th class="text-end">Contract Value</th><th class="text-end">NCD 1%</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="l">
+                                    <td><t t-esc="l_index + 1"/></td>
+                                    <td><span t-field="l.date"/></td>
+                                    <td><span t-field="l.partner_id"/></td>
+                                    <td><span t-field="l.move_id.name"/></td>
+                                    <td class="text-end"><span t-esc="abs(l.tax_base_amount)" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="-l.balance" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end"><strong t-field="o.base_amount"/></td>
+                                    <td class="text-end"><strong t-field="o.amount"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

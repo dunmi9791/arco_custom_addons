@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cat_budget_transfer" model="arco.approval.category">
+        <field name="name">Budget Transfer</field>
+        <field name="code">BUDTRF</field>
+        <field name="sequence">40</field>
+        <field name="request_type">budget_transfer</field>
+        <field name="has_amount">required</field>
+        <field name="need_supervisor" eval="False"/>
+        <field name="executive_rule">threshold</field>
+        <field name="executive_threshold">20000000</field>
+        <field name="description">Move budget between cost centres / budget items. Takes effect when executed.</field>
+    </record>
+</odoo>

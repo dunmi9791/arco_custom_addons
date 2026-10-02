@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_budget_user,arco.budget user,model_arco_budget,base.group_user,1,0,0,0
+access_budget_line_user,arco.budget.line user,model_arco_budget_line,base.group_user,1,0,0,0
+access_budget_item_user,arco.budget.item user,model_arco_budget_item,base.group_user,1,0,0,0
+access_budget_fin,arco.budget finance,model_arco_budget,arco_base.group_arco_finance_approver,1,1,1,0
+access_budget_line_fin,arco.budget.line finance,model_arco_budget_line,arco_base.group_arco_finance_approver,1,1,1,1
+access_budget_item_fin,arco.budget.item finance,model_arco_budget_item,arco_base.group_arco_finance_approver,1,1,1,0
+access_budget_mgr,arco.budget manager,model_arco_budget,account.group_account_manager,1,1,1,1
+access_budget_line_mgr,arco.budget.line manager,model_arco_budget_line,account.group_account_manager,1,1,1,1
+access_budget_item_mgr,arco.budget.item manager,model_arco_budget_item,account.group_account_manager,1,1,1,1

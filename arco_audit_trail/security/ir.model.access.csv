@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_audit_rule_admin,arco.audit.rule admin,model_arco_audit_rule,base.group_system,1,1,1,1
+access_audit_rule_auditor,arco.audit.rule auditor,model_arco_audit_rule,arco_base.group_arco_auditor,1,0,0,0
+access_audit_log_auditor,arco.audit.log auditor,model_arco_audit_log,arco_base.group_arco_auditor,1,0,0,0
+access_audit_log_accmgr,arco.audit.log account manager,model_arco_audit_log,account.group_account_manager,1,0,0,0
+access_audit_log_admin,arco.audit.log admin,model_arco_audit_log,base.group_system,1,0,0,0
+access_audit_line_auditor,arco.audit.log.line auditor,model_arco_audit_log_line,arco_base.group_arco_auditor,1,0,0,0
+access_audit_line_accmgr,arco.audit.log.line account manager,model_arco_audit_log_line,account.group_account_manager,1,0,0,0
+access_audit_line_admin,arco.audit.log.line admin,model_arco_audit_log_line,base.group_system,1,0,0,0

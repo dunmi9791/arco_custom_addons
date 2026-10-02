@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_payment_run" model="ir.sequence">
+        <field name="name">Payment Voucher</field>
+        <field name="code">arco.payment.run</field>
+        <field name="prefix">PV/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

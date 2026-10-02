@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_expense_view_form_arco" model="ir.ui.view">
+        <field name="name">hr.expense.form.arco</field>
+        <field name="model">hr.expense</field>
+        <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='payment_mode']" position="after">
+                <field name="arco_no_receipt_reason" placeholder="Only if no receipt can be attached"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_hr_expense_sheet_form_arco" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.form.arco</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Finance Verification" name="arco_verification">
+                    <group>
+                        <group>
+                            <field name="arco_missing_receipts"/>
+                        </group>
+                    </group>
+                    <field name="arco_budget_status" readonly="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

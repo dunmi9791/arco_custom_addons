@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_budget_vs_actual" model="ir.actions.report">
+        <field name="name">Budget vs Actual</field>
+        <field name="model">arco.budget</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_budget_control.report_budget_vs_actual</field>
+        <field name="report_file">arco_budget_control.report_budget_vs_actual</field>
+        <field name="print_report_name">'Budget vs Actual - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_arco_budget"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <template id="report_budget_vs_actual">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3>Budget vs Actual - <span t-field="o.name"/></h3>
+                        <p><span t-field="o.date_from"/> to <span t-field="o.date_to"/> | Policy: <span t-field="o.control_policy"/></p>
+                        <t t-set="money" t-value="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr><th>Cost Centre / Project</th><th>Budget Item</th>
+                                    <th class="text-end">Budget</th><th class="text-end">Actual</th>
+                                    <th class="text-end">Committed</th><th class="text-end">Available</th>
+                                    <th class="text-end">Used %</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="l" t-att-class="'text-danger' if l.available_amount &lt; 0 else ''">
+                                    <td><span t-field="l.analytic_account_id"/></td>
+                                    <td><span t-field="l.item_id"/></td>
+                                    <td class="text-end"><span t-esc="l.planned_amount" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="l.actual_amount" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="l.committed_amount" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="l.available_amount" t-options="money"/></td>
+                                    <td class="text-end"><t t-esc="'%.1f' % l.utilisation_pct"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold">
+                                    <td colspan="2">Total</td>
+                                    <td class="text-end"><span t-esc="o.planned_total" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="o.actual_total" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="o.committed_total" t-options="money"/></td>
+                                    <td class="text-end"><span t-esc="o.available_total" t-options="money"/></td>
+                                    <td/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

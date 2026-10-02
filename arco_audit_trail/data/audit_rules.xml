@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="audit_rule_move" model="arco.audit.rule"><field name="name">Journal Entries / Invoices / Bills</field><field name="model_id" ref="account.model_account_move"/></record>
+    <record id="audit_rule_payment" model="arco.audit.rule"><field name="name">Payments</field><field name="model_id" ref="account.model_account_payment"/></record>
+    <record id="audit_rule_account" model="arco.audit.rule"><field name="name">Chart of Accounts</field><field name="model_id" ref="account.model_account_account"/></record>
+    <record id="audit_rule_tax" model="arco.audit.rule"><field name="name">Taxes</field><field name="model_id" ref="account.model_account_tax"/></record>
+    <record id="audit_rule_partner" model="arco.audit.rule"><field name="name">Customers &amp; Vendors</field><field name="model_id" ref="base.model_res_partner"/><field name="log_create" eval="False"/></record>
+    <record id="audit_rule_bank" model="arco.audit.rule"><field name="name">Partner Bank Accounts</field><field name="model_id" ref="base.model_res_partner_bank"/></record>
+    <record id="audit_rule_po" model="arco.audit.rule"><field name="name">Purchase Orders</field><field name="model_id" ref="purchase.model_purchase_order"/></record>
+</odoo>

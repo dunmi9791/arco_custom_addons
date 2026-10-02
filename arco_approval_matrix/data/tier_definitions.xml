@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    ARCO Authorization Matrix (company currency, NGN). Editable in Settings > Technical > Tier Definitions.
+      <= N500,000          Department Manager
+      N500,001 - N5m       Department Manager + Finance Manager
+      N5m - N20m           Finance Director
+      > N20m               Executive Management
+    POs raised from an approved Purchase Requisition (within tolerance) skip the matrix,
+    because the requisition already went through it.
+    -->
+    <record id="tier_po_dept_manager" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PO - Department Manager (up to N5m)</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_dept_manager"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("arco_pr_preapproved", "=", False), ("amount_total_cc", "&lt;=", 5000000)]</field>
+        <field name="sequence">40</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_po_finance_manager" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PO - Finance Manager (N500,001 - N5m)</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("arco_pr_preapproved", "=", False), ("amount_total_cc", "&gt;", 500000), ("amount_total_cc", "&lt;=", 5000000)]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_po_finance_director" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PO - Finance Director (N5m - N20m)</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_director"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("arco_pr_preapproved", "=", False), ("amount_total_cc", "&gt;", 5000000), ("amount_total_cc", "&lt;=", 20000000)]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_po_executive" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PO - Executive Management (above N20m)</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_md"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("arco_pr_preapproved", "=", False), ("amount_total_cc", "&gt;", 20000000)]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_bill_l1" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Vendor Bill - Finance Manager (above N5m)</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("move_type", "=", "in_invoice"), ("arco_amount_company", "&gt;", 5000000)]</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

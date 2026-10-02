@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_leave_view_form_arco" model="ir.ui.view">
+        <field name="name">hr.leave.form.arco</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='holiday_status_id']" position="after">
+                <field name="arco_remaining_before" invisible="not arco_remaining_before" groups="hr_holidays.group_hr_holidays_user"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_company_form_arco_leave" model="ir.ui.view">
+        <field name="name">res.company.form.arco.leave</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="HR Controls" name="arco_hr_controls" groups="hr_holidays.group_hr_holidays_manager">
+                    <group>
+                        <field name="arco_leave_reminder_days"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

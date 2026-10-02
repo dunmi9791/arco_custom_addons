@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Procurement creates -> Legal Review -> Finance Review -> Executive Approval -> e-Signature -> Repository -->
+    <record id="tier_ctr_legal" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Contract 1 - Legal Review</field>
+        <field name="model_id" ref="model_arco_vendor_contract"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_legal"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+        <field name="has_comment" eval="True"/>
+    </record>
+    <record id="tier_ctr_finance" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Contract 2 - Finance Review</field>
+        <field name="model_id" ref="model_arco_vendor_contract"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_ctr_executive" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Contract 3 - Executive Approval</field>
+        <field name="model_id" ref="model_arco_vendor_contract"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_md"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+</odoo>

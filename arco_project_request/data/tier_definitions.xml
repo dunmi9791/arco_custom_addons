@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Business Unit -> PMO Review -> Budget Approval -> Executive Approval -> Project Creation -->
+    <record id="tier_prq_pmo" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Project 1 - PMO Review</field>
+        <field name="model_id" ref="model_arco_project_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_pmo"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_prq_budget" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Project 2 - Budget Approval (Finance)</field>
+        <field name="model_id" ref="model_arco_project_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_prq_executive" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Project 3 - Executive Approval</field>
+        <field name="model_id" ref="model_arco_project_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_md"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+</odoo>

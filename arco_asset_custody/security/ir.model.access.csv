@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_asset_loc_user,arco.asset.location user,model_arco_asset_location,base.group_user,1,0,0,0
+access_asset_loc_mgr,arco.asset.location manager,model_arco_asset_location,account.group_account_manager,1,1,1,1
+access_asset_trf_user,arco.asset.transfer user,model_arco_asset_transfer,account.group_account_invoice,1,1,1,0
+access_asset_trf_line_user,arco.asset.transfer.line user,model_arco_asset_transfer_line,account.group_account_invoice,1,1,1,1
+access_asset_trf_mgr,arco.asset.transfer manager,model_arco_asset_transfer,account.group_account_manager,1,1,1,1
+access_asset_trf_line_mgr,arco.asset.transfer.line manager,model_arco_asset_transfer_line,account.group_account_manager,1,1,1,1
+access_asset_trf_fin,arco.asset.transfer finance approver,model_arco_asset_transfer,arco_base.group_arco_finance_approver,1,1,1,0
+access_asset_trf_line_fin,arco.asset.transfer.line finance approver,model_arco_asset_transfer_line,arco_base.group_arco_finance_approver,1,1,1,0
+access_asset_trf_aud,arco.asset.transfer auditor,model_arco_asset_transfer,arco_base.group_arco_auditor,1,0,0,0

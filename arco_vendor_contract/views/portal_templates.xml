@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_contract_page" name="Vendor Contract">
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="base.group_user">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url" t-value="'/odoo/action-arco_vendor_contract.action_arco_vendor_contract/%s' % contract.id"/>
+                </t>
+            </t>
+            <div class="container my-4">
+                <div t-if="message == 'sign_ok'" class="alert alert-success">Thank you, the contract has been signed.</div>
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><t t-esc="contract.name"/> - <t t-esc="contract.title"/></h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Between</strong> <span t-field="contract.company_id.name"/> <strong>and</strong> <span t-field="contract.partner_id.name"/><br/>
+                                <strong>Type:</strong> <span t-field="contract.contract_type"/><br/>
+                                <strong>Value:</strong> <span t-field="contract.amount"/>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Start:</strong> <span t-field="contract.date_start"/><br/>
+                                <strong>End:</strong> <span t-field="contract.date_end"/><br/>
+                                <strong>Status:</strong> <span t-field="contract.state"/>
+                            </div>
+                        </div>
+                        <div t-if="contract.scope" t-field="contract.scope" class="mb-3"/>
+                        <p t-if="contract.document">
+                            <a class="btn btn-secondary" t-attf-href="/web/content/arco.vendor.contract/#{contract.id}/document/#{contract.document_name or 'contract.pdf'}?download=true&amp;access_token=#{contract.access_token}">
+                                <i class="fa fa-download"/> Download contract document
+                            </a>
+                        </p>
+                        <t t-if="contract._has_to_be_signed()">
+                            <h5 class="mt-4">Sign this contract</h5>
+                            <p>By signing, you confirm that you have read and accept the contract document above on behalf of <t t-esc="contract.partner_id.name"/>.</p>
+                            <t t-call="portal.signature_form">
+                                <t t-set="call_url" t-value="contract.get_portal_url(suffix='/sign')"/>
+                                <t t-set="default_name" t-value="contract._signer().name"/>
+                                <t t-set="send_label">Sign contract</t>
+                            </t>
+                        </t>
+                        <div t-if="contract.vendor_signed_on" class="mt-4">
+                            <strong>Signed by</strong> <t t-esc="contract.vendor_signed_by"/> on <span t-field="contract.vendor_signed_on"/>
+                            <br/><img t-att-src="image_data_uri(contract.vendor_signature)" style="max-height: 6rem; max-width: 100%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

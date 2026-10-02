@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_asset_register" model="report.paperformat">
+        <field name="name">A4 Landscape (Asset Register)</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_spacing">25</field>
+        <field name="dpi">90</field>
+    </record>
+    <record id="action_report_asset_register" model="ir.actions.report">
+        <field name="name">Fixed Asset Register</field>
+        <field name="model">account.asset</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_asset_custody.report_asset_register</field>
+        <field name="report_file">arco_asset_custody.report_asset_register</field>
+        <field name="print_report_name">'Fixed Asset Register'</field>
+        <field name="binding_model_id" ref="account_asset_management.model_account_asset"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_asset_register"/>
+    </record>
+    <template id="report_asset_register">
+        <t t-call="web.html_container">
+            <t t-set="company" t-value="docs[:1].company_id or res_company"/>
+            <t t-call="web.external_layout">
+                <t t-set="money" t-value="{'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                <div class="page">
+                    <h3>Fixed Asset Register</h3>
+                    <p class="text-muted">Printed <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d %b %Y %H:%M')"/></p>
+                    <table class="table table-sm o_main_table" style="font-size: 11px;">
+                        <thead>
+                            <tr>
+                                <th>Code</th><th>Tag</th><th>Asset</th><th>Profile</th><th>In Service</th>
+                                <th class="text-end">Cost</th><th class="text-end">Accum. Depr.</th><th class="text-end">NBV</th>
+                                <th>Custodian</th><th>Department</th><th>Site</th><th>Condition</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs.sorted(lambda a: (a.profile_id.name or '', a.code or ''))" t-as="a">
+                                <td><span t-field="a.code"/></td>
+                                <td><span t-field="a.arco_tag_number"/></td>
+                                <td><span t-field="a.name"/></td>
+                                <td><span t-field="a.profile_id"/></td>
+                                <td><span t-field="a.date_start"/></td>
+                                <td class="text-end"><span t-esc="a.purchase_value" t-options="money"/></td>
+                                <td class="text-end"><span t-esc="a.value_depreciated" t-options="money"/></td>
+                                <td class="text-end"><span t-esc="a.value_residual" t-options="money"/></td>
+                                <td><span t-field="a.arco_custodian_id"/></td>
+                                <td><span t-field="a.arco_department_id"/></td>
+                                <td><span t-field="a.arco_location_id"/></td>
+                                <td><span t-field="a.arco_condition"/></td>
+                                <td><span t-field="a.state"/></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="5">Total (<t t-esc="len(docs)"/> assets)</td>
+                                <td class="text-end"><span t-esc="sum(docs.mapped('purchase_value'))" t-options="money"/></td>
+                                <td class="text-end"><span t-esc="sum(docs.mapped('value_depreciated'))" t-options="money"/></td>
+                                <td class="text-end"><span t-esc="sum(docs.mapped('value_residual'))" t-options="money"/></td>
+                                <td colspan="5"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

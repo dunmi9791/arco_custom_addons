@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WHT categories -->
+    <record id="view_arco_wht_category_list" model="ir.ui.view">
+        <field name="name">arco.wht.category.list</field>
+        <field name="model">arco.wht.category</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="purchase_tax_id"/>
+                <field name="sale_tax_id"/>
+                <field name="authority"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_wht_category" model="ir.actions.act_window">
+        <field name="name">WHT Categories</field>
+        <field name="res_model">arco.wht.category</field>
+        <field name="view_mode">list</field>
+    </record>
+    <menuitem id="menu_arco_wht_category" name="WHT Categories" parent="account.account_account_menu" action="action_arco_wht_category" sequence="90"/>
+
+    <!-- Tax: deduction-at-source kind -->
+    <record id="view_tax_form_arco_kind" model="ir.ui.view">
+        <field name="name">account.tax.form.arco.kind</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <field name="type_tax_use" position="after">
+                <field name="arco_tax_kind"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Partner -->
+    <record id="view_partner_form_arco_wht" model="ir.ui.view">
+        <field name="name">res.partner.form.arco.wht</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="arco_base.view_partner_form_arco"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='arco_vendor_approved']" position="after">
+                <field name="arco_wht_category_id"/>
+                <field name="arco_wht_exempt"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Invoice / bill -->
+    <record id="view_move_form_arco_wht" model="ir.ui.view">
+        <field name="name">account.move.form.arco.wht</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_arco_apply_wht" string="Apply WHT" type="object"
+                        invisible="state != 'draft' or move_type not in ('in_invoice','in_refund','out_invoice','out_refund')"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Withholding Tax" name="arco_wht" invisible="move_type not in ('in_invoice','in_refund','out_invoice','out_refund')">
+                    <group>
+                        <group>
+                            <field name="arco_wht_amount"/>
+                            <field name="arco_wht_cert_state" invisible="move_type != 'out_invoice'"/>
+                        </group>
+                        <group invisible="move_type != 'out_invoice'">
+                            <field name="arco_wht_cert_no"/>
+                            <field name="arco_wht_cert_date"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- WHT credit notes receivable tracking -->
+    <record id="view_arco_wht_credit_list" model="ir.ui.view">
+        <field name="name">account.move.wht.credit.list</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" decoration-warning="arco_wht_cert_state == 'expected'">
+                <field name="name" readonly="1"/>
+                <field name="invoice_date" readonly="1"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="amount_untaxed_signed" string="Invoice (excl. VAT)" readonly="1" sum="Total"/>
+                <field name="arco_wht_amount" readonly="1" sum="Total"/>
+                <field name="arco_wht_cert_no"/>
+                <field name="arco_wht_cert_date"/>
+                <field name="arco_wht_cert_state" widget="badge" decoration-warning="arco_wht_cert_state == 'expected'" decoration-success="arco_wht_cert_state == 'received'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_wht_credit" model="ir.actions.act_window">
+        <field name="name">WHT Credit Notes (Receivable)</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_arco_wht_credit_list"/>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('arco_wht_cert_state', 'in', ('expected', 'received'))]</field>
+    </record>
+
+    <!-- WHT schedule (payable) for monthly remittance -->
+    <record id="view_arco_wht_schedule_list" model="ir.ui.view">
+        <field name="name">account.move.line.wht.schedule</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="date"/>
+                <field name="move_id" string="Bill"/>
+                <field name="partner_id" string="Beneficiary"/>
+                <field name="tax_line_id" string="WHT Type"/>
+                <field name="tax_base_amount" string="Contract Value (Base)" sum="Base"/>
+                <field name="balance" string="WHT Amount" sum="WHT"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_wht_schedule" model="ir.actions.act_window">
+        <field name="name">WHT Deduction Schedule</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="view_id" ref="view_arco_wht_schedule_list"/>
+        <field name="domain">[('tax_line_id.arco_tax_kind', '=', 'wht'), ('tax_line_id.type_tax_use', '=', 'purchase'), ('parent_state', '=', 'posted')]</field>
+        <field name="context">{'search_default_group_by_partner': 0}</field>
+    </record>
+
+    <menuitem id="menu_arco_wht_root" name="Withholding Tax" parent="account.menu_finance_reports" sequence="5"/>
+    <menuitem id="menu_arco_wht_schedule" name="WHT Deduction Schedule" parent="menu_arco_wht_root" action="action_arco_wht_schedule" sequence="1"/>
+    <menuitem id="menu_arco_wht_credit" name="WHT Credit Notes (Receivable)" parent="menu_arco_wht_root" action="action_arco_wht_credit" sequence="2"/>
+</odoo>

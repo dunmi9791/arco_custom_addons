@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_approval_request_form_budget" model="ir.ui.view">
+        <field name="name">arco.approval.request.form.budget</field>
+        <field name="model">arco.approval.request</field>
+        <field name="inherit_id" ref="arco_approvals.view_arco_approval_request_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="before">
+                <group string="Budget Transfer" invisible="request_type != 'budget_transfer'">
+                    <group>
+                        <field name="budget_from_line_id" readonly="state != 'draft'" required="request_type == 'budget_transfer'"/>
+                        <field name="budget_from_available"/>
+                    </group>
+                    <group>
+                        <field name="budget_to_line_id" readonly="state != 'draft'" required="request_type == 'budget_transfer'"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

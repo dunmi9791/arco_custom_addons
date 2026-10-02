@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_apr_own" model="ir.rule">
+        <field name="name">Approvals: own requests and requests I approve</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="domain_force">['|', '|', '|', ('requested_by', '=', user.id), ('supervisor_user_id', '=', user.id), ('dept_head_user_id', '=', user.id), ('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_apr_all" model="ir.rule">
+        <field name="name">Approvals: approvers and auditors see all</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('arco_base.group_arco_dept_manager')), (4, ref('arco_base.group_arco_finance_approver')), (4, ref('arco_base.group_arco_auditor')), (4, ref('base.group_system'))]"/>
+    </record>
+    <record id="rule_apr_company" model="ir.rule">
+        <field name="name">Approvals: multi-company</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

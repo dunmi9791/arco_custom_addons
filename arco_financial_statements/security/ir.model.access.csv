@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fs_wizard,arco.financial.statement.wizard,model_arco_financial_statement_wizard,account.group_account_invoice,1,1,1,1
+access_fs_wizard_fin,arco.financial.statement.wizard finance,model_arco_financial_statement_wizard,arco_base.group_arco_finance_approver,1,1,1,1
+access_fs_wizard_aud,arco.financial.statement.wizard auditor,model_arco_financial_statement_wizard,arco_base.group_arco_auditor,1,1,1,1

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="edit_project_arco_costing" model="ir.ui.view">
+        <field name="name">project.project.form.arco.costing</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Cost Control" name="arco_cost_control">
+                    <group>
+                        <group string="Contract">
+                            <field name="arco_currency_id" invisible="1"/>
+                            <field name="arco_contract_value"/>
+                            <field name="arco_revenue"/>
+                            <field name="arco_margin"/>
+                            <field name="arco_margin_pct"/>
+                        </group>
+                        <group string="Cost">
+                            <field name="arco_budget_total"/>
+                            <field name="arco_actual_cost"/>
+                            <field name="arco_committed_cost"/>
+                            <field name="arco_budget_consumed_pct" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <field name="arco_budget_line_ids">
+                        <list editable="bottom" decoration-danger="consumed_pct &gt; 100" decoration-warning="consumed_pct &gt; 85 and consumed_pct &lt;= 100">
+                            <field name="sequence" widget="handle"/>
+                            <field name="category_id"/>
+                            <field name="name"/>
+                            <field name="planned_amount" sum="Budget"/>
+                            <field name="committed_amount" sum="Committed"/>
+                            <field name="actual_amount" sum="Actual"/>
+                            <field name="remaining_amount" sum="Remaining"/>
+                            <field name="consumed_pct" widget="progressbar"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_list_arco_costing" model="ir.ui.view">
+        <field name="name">project.project.list.arco.costing</field>
+        <field name="model">project.project</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="arco_contract_value" sum="Total"/>
+                <field name="arco_budget_total" sum="Total"/>
+                <field name="arco_committed_cost" sum="Total"/>
+                <field name="arco_actual_cost" sum="Total"/>
+                <field name="arco_revenue" sum="Total"/>
+                <field name="arco_margin" sum="Total"/>
+                <field name="arco_budget_consumed_pct" widget="progressbar"/>
+                <field name="arco_currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_project_costing" model="ir.actions.act_window">
+        <field name="name">Project Cost Control</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_project_list_arco_costing"/>
+    </record>
+    <record id="action_arco_cost_category" model="ir.actions.act_window">
+        <field name="name">Cost Categories</field>
+        <field name="res_model">arco.cost.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_arco_project_costing" name="Project Cost Control" parent="project.menu_project_report" action="action_arco_project_costing" sequence="1"/>
+    <menuitem id="menu_arco_cost_category" name="Cost Categories" parent="project.menu_project_config" action="action_arco_cost_category" sequence="50"/>
+</odoo>

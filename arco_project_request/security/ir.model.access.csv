@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_prj_req_user,arco.project.request user,model_arco_project_request,base.group_user,1,1,1,0
+access_prj_req_budget_user,arco.project.request.budget user,model_arco_project_request_budget,base.group_user,1,1,1,1
+access_prj_resource_user,arco.project.resource user,model_arco_project_resource,base.group_user,1,1,1,1
+access_prj_req_pm,arco.project.request project manager,model_arco_project_request,project.group_project_manager,1,1,1,1

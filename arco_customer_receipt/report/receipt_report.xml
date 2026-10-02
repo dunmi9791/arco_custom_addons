@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_customer_receipt" model="ir.actions.report">
+        <field name="name">Official Receipt</field>
+        <field name="model">arco.customer.receipt</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_customer_receipt.report_customer_receipt</field>
+        <field name="report_file">arco_customer_receipt.report_customer_receipt</field>
+        <field name="print_report_name">'Receipt - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_arco_customer_receipt"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_customer_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Official Receipt <span t-field="o.name"/></h2>
+                        <p>Received from <strong t-field="o.partner_id"/> the sum of
+                            <strong t-field="o.amount"/> (<span t-esc="o.currency_id.amount_to_text(o.amount)"/>)
+                            on <span t-field="o.date"/> into <span t-field="o.journal_id"/>.
+                            <t t-if="o.bank_reference">Bank ref. <span t-field="o.bank_reference"/>.</t></p>
+                        <table class="table table-sm o_main_table">
+                            <thead><tr><th>Invoice</th><th>Invoice Date</th>
+                                <th class="text-end">Applied</th><th class="text-end">Deducted at Source</th></tr></thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids.filtered(lambda l: l.amount_allocated or l.deduction_amount)" t-as="l">
+                                    <td><span t-field="l.move_id.name"/></td>
+                                    <td><span t-field="l.invoice_date"/></td>
+                                    <td class="text-end"><span t-field="l.amount_allocated"/></td>
+                                    <td class="text-end"><span t-field="l.deduction_amount"/></td>
+                                </tr>
+                                <tr t-if="o.amount_unallocated">
+                                    <td colspan="2">Unapplied - held on account</td>
+                                    <td class="text-end"><span t-field="o.amount_unallocated"/></td><td/>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

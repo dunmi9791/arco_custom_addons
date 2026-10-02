@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_audit_log_list" model="ir.ui.view">
+        <field name="name">arco.audit.log.list</field>
+        <field name="model">arco.audit.log</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-danger="method == 'unlink'">
+                <field name="date"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="model_id"/>
+                <field name="res_name"/>
+                <field name="method" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_audit_log_form" model="ir.ui.view">
+        <field name="name">arco.audit.log.form</field>
+        <field name="model">arco.audit.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_open_record" string="Open Record" type="object" invisible="method == 'unlink'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group><field name="date"/><field name="user_id"/><field name="method"/></group>
+                        <group><field name="model_id"/><field name="res_name"/><field name="res_id"/></group>
+                    </group>
+                    <field name="line_ids">
+                        <list>
+                            <field name="field_description" string="Field"/>
+                            <field name="old_value"/>
+                            <field name="new_value"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_arco_audit_log_search" model="ir.ui.view">
+        <field name="name">arco.audit.log.search</field>
+        <field name="model">arco.audit.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="res_name"/>
+                <field name="user_id"/>
+                <field name="model_id"/>
+                <filter name="deletes" string="Deletions" domain="[('method', '=', 'unlink')]"/>
+                <filter name="today" string="Today" domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_user" string="User" context="{'group_by': 'user_id'}"/>
+                    <filter name="g_model" string="Document Type" context="{'group_by': 'model_id'}"/>
+                    <filter name="g_date" string="Day" context="{'group_by': 'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_arco_audit_log" model="ir.actions.act_window">
+        <field name="name">Audit Trail</field>
+        <field name="res_model">arco.audit.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="view_arco_audit_rule_list" model="ir.ui.view">
+        <field name="name">arco.audit.rule.list</field>
+        <field name="model">arco.audit.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="log_create"/>
+                <field name="log_write"/>
+                <field name="log_unlink"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_audit_rule" model="ir.actions.act_window">
+        <field name="name">Audit Rules</field>
+        <field name="res_model">arco.audit.rule</field>
+        <field name="view_mode">list</field>
+    </record>
+    <menuitem id="menu_arco_audit_log" name="Audit Trail" parent="account.menu_finance_reports" action="action_arco_audit_log" sequence="90"
+              groups="arco_base.group_arco_auditor,account.group_account_manager,base.group_system"/>
+    <menuitem id="menu_arco_audit_rule" name="Audit Rules" parent="account.account_account_menu" action="action_arco_audit_rule" sequence="95" groups="base.group_system"/>
+</odoo>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_financial_statement" model="ir.actions.report">
+        <field name="name">Financial Statements</field>
+        <field name="model">arco.financial.statement.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_financial_statements.report_financial_statement</field>
+        <field name="report_file">arco_financial_statements.report_financial_statement</field>
+        <field name="print_report_name">'Financial Statements'</field>
+    </record>
+    <record id="action_report_financial_statement_html" model="ir.actions.report">
+        <field name="name">Financial Statements (screen)</field>
+        <field name="model">arco.financial.statement.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">arco_financial_statements.report_financial_statement</field>
+    </record>
+
+    <template id="fs_amount">
+        <td class="text-end"><span t-esc="amount" t-options="{'widget': 'monetary', 'display_currency': currency}"/></td>
+    </template>
+
+    <template id="fs_section">
+        <!-- expects: sec, sec_cmp, label, show_cmp -->
+        <tr class="fw-bold" style="background-color:#f2f2f2;"><td t-att-colspan="3 if show_cmp else 2"><t t-esc="sec['label']"/></td></tr>
+        <t t-if="data['show_accounts']">
+            <tr t-foreach="rows(sec, sec_cmp)" t-as="r">
+                <td style="padding-left:18px;"><t t-esc="r[0]"/> <t t-esc="r[1]"/></td>
+                <t t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="r[2]"/></t>
+                <t t-if="show_cmp" t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="r[3]"/></t>
+            </tr>
+        </t>
+        <tr class="fw-bold">
+            <td>Total <t t-esc="sec['label']"/></td>
+            <t t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="sec['total']"/></t>
+            <t t-if="show_cmp" t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="sec_cmp['total']"/></t>
+        </tr>
+    </template>
+
+    <template id="fs_total_row">
+        <tr class="fw-bold border-top border-dark">
+            <td><t t-esc="label"/></td>
+            <t t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="cur"/></t>
+            <t t-if="show_cmp" t-call="arco_financial_statements.fs_amount"><t t-set="amount" t-value="cmp"/></t>
+        </tr>
+    </template>
+
+    <template id="fs_header">
+        <thead>
+            <tr>
+                <th/>
+                <th class="text-end"><t t-esc="col1"/></th>
+                <th t-if="show_cmp" class="text-end"><t t-esc="col2"/></th>
+            </tr>
+        </thead>
+    </template>
+
+    <template id="report_financial_statement">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <t t-set="fmt" t-value="lambda d: d.strftime('%d %b %Y') if d else ''"/>
+                    <p class="text-muted mb-1">
+                        <t t-esc="data['company_name']"/><t t-if="data['branches']"> - branches: <t t-esc="data['branches']"/></t>
+                        <t t-if="not data['posted_only']"> - including draft entries</t>
+                    </p>
+
+                    <!-- PROFIT AND LOSS -->
+                    <t t-if="pl">
+                        <t t-set="show_cmp" t-value="bool(pl_cmp)"/>
+                        <h3>Statement of Profit or Loss</h3>
+                        <p>For the period <t t-esc="fmt(d_from)"/> to <t t-esc="fmt(d_to)"/></p>
+                        <table class="table table-sm">
+                            <t t-call="arco_financial_statements.fs_header">
+                                <t t-set="col1" t-value="fmt(d_to)"/>
+                                <t t-set="col2" t-value="fmt(c_to)"/>
+                            </t>
+                            <tbody>
+                                <t t-call="arco_financial_statements.fs_section">
+                                    <t t-set="sec" t-value="pl['sections']['revenue']"/><t t-set="sec_cmp" t-value="pl_cmp and pl_cmp['sections']['revenue']"/>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_section">
+                                    <t t-set="sec" t-value="pl['sections']['cos']"/><t t-set="sec_cmp" t-value="pl_cmp and pl_cmp['sections']['cos']"/>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Gross Profit</t><t t-set="cur" t-value="pl['gross_profit']"/><t t-set="cmp" t-value="pl_cmp and pl_cmp['gross_profit']"/>
+                                </t>
+                                <t t-foreach="['other_income', 'opex', 'depreciation']" t-as="k">
+                                    <t t-call="arco_financial_statements.fs_section">
+                                        <t t-set="sec" t-value="pl['sections'][k]"/><t t-set="sec_cmp" t-value="pl_cmp and pl_cmp['sections'][k]"/>
+                                    </t>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Net Profit / (Loss)</t><t t-set="cur" t-value="pl['net_profit']"/><t t-set="cmp" t-value="pl_cmp and pl_cmp['net_profit']"/>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- BALANCE SHEET -->
+                    <t t-if="bs">
+                        <div t-if="pl" style="page-break-before: always;"/>
+                        <t t-set="show_cmp" t-value="bool(bs_cmp)"/>
+                        <h3>Statement of Financial Position</h3>
+                        <p>As at <t t-esc="fmt(d_to)"/></p>
+                        <table class="table table-sm">
+                            <t t-call="arco_financial_statements.fs_header">
+                                <t t-set="col1" t-value="fmt(d_to)"/>
+                                <t t-set="col2" t-value="fmt(c_to)"/>
+                            </t>
+                            <tbody>
+                                <t t-foreach="['nca', 'ca']" t-as="k">
+                                    <t t-call="arco_financial_statements.fs_section">
+                                        <t t-set="sec" t-value="bs['sections'][k]"/><t t-set="sec_cmp" t-value="bs_cmp and bs_cmp['sections'][k]"/>
+                                    </t>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Total Assets</t><t t-set="cur" t-value="bs['total_assets']"/><t t-set="cmp" t-value="bs_cmp and bs_cmp['total_assets']"/>
+                                </t>
+                                <t t-foreach="['cl', 'ncl', 'equity']" t-as="k">
+                                    <t t-call="arco_financial_statements.fs_section">
+                                        <t t-set="sec" t-value="bs['sections'][k]"/><t t-set="sec_cmp" t-value="bs_cmp and bs_cmp['sections'][k]"/>
+                                    </t>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Total Liabilities and Equity</t><t t-set="cur" t-value="bs['total_le']"/><t t-set="cmp" t-value="bs_cmp and bs_cmp['total_le']"/>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p t-if="not currency.is_zero(bs['difference'])" class="text-danger">
+                            Out of balance by <span t-esc="bs['difference']" t-options="{'widget': 'monetary', 'display_currency': currency}"/> - check unposted or off-balance entries.
+                        </p>
+                    </t>
+
+                    <!-- CASH FLOW -->
+                    <t t-if="cf">
+                        <div t-if="pl or bs" style="page-break-before: always;"/>
+                        <t t-set="show_cmp" t-value="bool(cf_cmp)"/>
+                        <t t-set="money" t-value="{'widget': 'monetary', 'display_currency': currency}"/>
+                        <h3>Statement of Cash Flows (indirect method)</h3>
+                        <p>For the period <t t-esc="fmt(d_from)"/> to <t t-esc="fmt(d_to)"/></p>
+                        <table class="table table-sm">
+                            <t t-call="arco_financial_statements.fs_header">
+                                <t t-set="col1" t-value="fmt(d_to)"/>
+                                <t t-set="col2" t-value="fmt(c_to)"/>
+                            </t>
+                            <tbody>
+                                <tr class="fw-bold" style="background-color:#f2f2f2;"><td t-att-colspan="3 if show_cmp else 2">Operating activities</td></tr>
+                                <tr><td style="padding-left:18px;">Net profit / (loss)</td>
+                                    <td class="text-end"><span t-esc="cf['net_profit']" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['net_profit']" t-options="money"/></td></tr>
+                                <tr><td style="padding-left:18px;">Add back: depreciation &amp; amortisation</td>
+                                    <td class="text-end"><span t-esc="cf['depreciation']" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['depreciation']" t-options="money"/></td></tr>
+                                <tr t-foreach="cf['working_capital']" t-as="wc">
+                                    <td style="padding-left:18px;"><t t-esc="wc[0]"/></td>
+                                    <td class="text-end"><span t-esc="wc[1]" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['working_capital'][wc_index][1]" t-options="money"/></td>
+                                </tr>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Net cash from operating activities</t><t t-set="cur" t-value="cf['operating']"/><t t-set="cmp" t-value="cf_cmp and cf_cmp['operating']"/>
+                                </t>
+                                <tr class="fw-bold" style="background-color:#f2f2f2;"><td t-att-colspan="3 if show_cmp else 2">Investing activities</td></tr>
+                                <tr t-foreach="cf['investing_lines']" t-as="il">
+                                    <td style="padding-left:18px;"><t t-esc="il[0]"/></td>
+                                    <td class="text-end"><span t-esc="il[1]" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['investing_lines'][il_index][1]" t-options="money"/></td>
+                                </tr>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Net cash from investing activities</t><t t-set="cur" t-value="cf['investing']"/><t t-set="cmp" t-value="cf_cmp and cf_cmp['investing']"/>
+                                </t>
+                                <tr class="fw-bold" style="background-color:#f2f2f2;"><td t-att-colspan="3 if show_cmp else 2">Financing activities</td></tr>
+                                <tr t-foreach="cf['financing_lines']" t-as="fl">
+                                    <td style="padding-left:18px;"><t t-esc="fl[0]"/></td>
+                                    <td class="text-end"><span t-esc="fl[1]" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['financing_lines'][fl_index][1]" t-options="money"/></td>
+                                </tr>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Net cash from financing activities</t><t t-set="cur" t-value="cf['financing']"/><t t-set="cmp" t-value="cf_cmp and cf_cmp['financing']"/>
+                                </t>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Net increase / (decrease) in cash</t><t t-set="cur" t-value="cf['net_change']"/><t t-set="cmp" t-value="cf_cmp and cf_cmp['net_change']"/>
+                                </t>
+                                <tr><td>Cash and bank at beginning of period</td>
+                                    <td class="text-end"><span t-esc="cf['opening_cash']" t-options="money"/></td>
+                                    <td t-if="show_cmp" class="text-end"><span t-esc="cf_cmp['opening_cash']" t-options="money"/></td></tr>
+                                <t t-call="arco_financial_statements.fs_total_row">
+                                    <t t-set="label">Cash and bank at end of period</t><t t-set="cur" t-value="cf['closing_cash']"/><t t-set="cmp" t-value="cf_cmp and cf_cmp['closing_cash']"/>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p t-if="not currency.is_zero(cf['difference'])" class="text-danger">
+                            Reconciliation difference: <span t-esc="cf['difference']" t-options="money"/>
+                        </p>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

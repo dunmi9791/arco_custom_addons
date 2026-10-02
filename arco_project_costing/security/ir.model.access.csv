@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cost_cat_user,arco.cost.category user,model_arco_cost_category,project.group_project_user,1,0,0,0
+access_cost_cat_mgr,arco.cost.category manager,model_arco_cost_category,project.group_project_manager,1,1,1,1
+access_budget_line_user,arco.project.budget.line user,model_arco_project_budget_line,project.group_project_user,1,0,0,0
+access_budget_line_mgr,arco.project.budget.line manager,model_arco_project_budget_line,project.group_project_manager,1,1,1,1

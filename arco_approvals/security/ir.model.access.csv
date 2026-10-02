@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_apr_cat_user,arco.approval.category user,model_arco_approval_category,base.group_user,1,0,0,0
+access_apr_cat_admin,arco.approval.category admin,model_arco_approval_category,base.group_system,1,1,1,1
+access_apr_req_user,arco.approval.request user,model_arco_approval_request,base.group_user,1,1,1,0
+access_apr_req_admin,arco.approval.request admin,model_arco_approval_request,base.group_system,1,1,1,1

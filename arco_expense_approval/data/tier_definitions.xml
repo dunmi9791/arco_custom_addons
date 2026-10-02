@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Employee -> Line Manager Review -> Finance Verification -> Finance Approval -> Payment -->
+    <record id="tier_exp_line_manager" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Expense 1 - Line Manager Review</field>
+        <field name="model_id" ref="hr_expense.model_hr_expense_sheet"/>
+        <field name="review_type">field</field>
+        <field name="reviewer_field_id" ref="hr_expense.field_hr_expense_sheet__user_id"/>
+        <field name="definition_domain">[("user_id", "!=", False)]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_exp_line_manager_group" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Expense 1 - Line Manager Review (no manager set)</field>
+        <field name="model_id" ref="hr_expense.model_hr_expense_sheet"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="hr_expense.group_hr_expense_team_approver"/>
+        <field name="definition_domain">[("user_id", "=", False)]</field>
+        <field name="sequence">29</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_exp_finance_verification" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Expense 2 - Finance Verification (receipts and budget)</field>
+        <field name="model_id" ref="hr_expense.model_hr_expense_sheet"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="account.group_account_invoice"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_exp_finance_approval" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">Expense 3 - Finance Approval</field>
+        <field name="model_id" ref="hr_expense.model_hr_expense_sheet"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+</odoo>

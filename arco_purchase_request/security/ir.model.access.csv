@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_user,arco.purchase.request user,model_arco_purchase_request,base.group_user,1,1,1,0
+access_pr_line_user,arco.purchase.request.line user,model_arco_purchase_request_line,base.group_user,1,1,1,1
+access_pr_purchase,arco.purchase.request purchase,model_arco_purchase_request,purchase.group_purchase_user,1,1,1,1
+access_pr_line_purchase,arco.purchase.request.line purchase,model_arco_purchase_request_line,purchase.group_purchase_user,1,1,1,1

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Enterprise approval flow: Supervisor -> Department Head -> Finance Validation -> Executive (if required).
+         Which steps apply is set per approval type (Approvals > Configuration > Approval Types). -->
+    <record id="tier_apr_supervisor" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">1 - Supervisor</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="review_type">field</field>
+        <field name="reviewer_field_id" ref="field_arco_approval_request__supervisor_user_id"/>
+        <field name="definition_domain">[("category_id.need_supervisor", "=", True), ("supervisor_user_id", "!=", False), "|", ("supervisor_is_dept_head", "=", False), ("category_id.need_dept_head", "=", False)]</field>
+        <field name="sequence">40</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_apr_dept_head" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">2 - Department Head</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="review_type">field</field>
+        <field name="reviewer_field_id" ref="field_arco_approval_request__dept_head_user_id"/>
+        <field name="definition_domain">[("category_id.need_dept_head", "=", True), ("dept_head_user_id", "!=", False)]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_apr_dept_head_group" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">2 - Department Head (no head on department)</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_dept_manager"/>
+        <field name="definition_domain">[("category_id.need_dept_head", "=", True), ("dept_head_user_id", "=", False)]</field>
+        <field name="sequence">29</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_apr_finance" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">3 - Finance Validation</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_domain">[("category_id.need_finance", "=", True)]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_apr_executive" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">4 - Executive Approval</field>
+        <field name="model_id" ref="model_arco_approval_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_md"/>
+        <field name="definition_domain">[("executive_required", "=", True)]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+</odoo>

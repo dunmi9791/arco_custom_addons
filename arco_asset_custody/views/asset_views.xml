@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_asset_view_form_arco" model="ir.ui.view">
+        <field name="name">account.asset.form.arco.custody</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_arco_transfer" string="Transfer" type="object" invisible="state not in ('open','close')"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_arco_view_transfers" type="object" class="oe_stat_button" icon="fa-exchange" invisible="arco_transfer_count == 0">
+                    <field name="arco_transfer_count" widget="statinfo" string="Transfers"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook/page[1]" position="after">
+                <page string="Custody" name="arco_custody">
+                    <group>
+                        <group>
+                            <field name="arco_tag_number"/>
+                            <field name="arco_serial_number"/>
+                            <field name="arco_condition"/>
+                        </group>
+                        <group>
+                            <field name="arco_custodian_id"/>
+                            <field name="arco_department_id"/>
+                            <field name="arco_location_id"/>
+                        </group>
+                    </group>
+                    <separator string="Custody History"/>
+                    <field name="arco_transfer_line_ids" readonly="1">
+                        <list>
+                            <field name="date"/>
+                            <field name="transfer_id"/>
+                            <field name="from_employee_id"/>
+                            <field name="to_employee_id"/>
+                            <field name="from_location_id" optional="show"/>
+                            <field name="to_location_id" optional="show"/>
+                            <field name="reason" optional="hide"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="account_asset_view_tree_arco" model="ir.ui.view">
+        <field name="name">account.asset.list.arco.custody</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="arco_tag_number" optional="show"/>
+                <field name="arco_custodian_id" optional="show"/>
+                <field name="arco_department_id" optional="hide"/>
+                <field name="arco_location_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+    <record id="account_asset_view_search_arco" model="ir.ui.view">
+        <field name="name">account.asset.search.arco.custody</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_search"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="arco_tag_number"/>
+                <field name="arco_custodian_id"/>
+                <field name="arco_location_id"/>
+            </field>
+            <xpath expr="//search" position="inside">
+                <group expand="0" string="Custody">
+                    <filter name="group_custodian" string="Custodian" context="{'group_by': 'arco_custodian_id'}"/>
+                    <filter name="group_location" string="Site" context="{'group_by': 'arco_location_id'}"/>
+                    <filter name="group_department" string="Department" context="{'group_by': 'arco_department_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Locations -->
+    <record id="view_arco_asset_location_list" model="ir.ui.view">
+        <field name="name">arco.asset.location.list</field>
+        <field name="model">arco.asset.location</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="parent_id"/>
+                <field name="complete_name" optional="hide"/>
+                <field name="address"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_arco_asset_location" model="ir.actions.act_window">
+        <field name="name">Asset Sites / Locations</field>
+        <field name="res_model">arco.asset.location</field>
+        <field name="view_mode">list</field>
+    </record>
+    <menuitem id="menu_arco_asset_location" name="Sites / Locations" parent="account_asset_management.menu_finance_config_assets" action="action_arco_asset_location" sequence="30"/>
+</odoo>

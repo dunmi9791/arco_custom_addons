@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_contract_signature" model="mail.template">
+        <field name="name">ARCO: Contract signature request</field>
+        <field name="model_id" ref="model_arco_vendor_contract"/>
+        <field name="subject">Signature requested: {{ object.name }} - {{ object.title }}</field>
+        <field name="email_from">{{ (object.responsible_id.email_formatted or user.email_formatted) }}</field>
+        <field name="body_html" type="html">
+<div>
+    <p>Dear <t t-out="object._signer().name or ''"/>,</p>
+    <p><t t-out="object.company_id.name or ''"/> has approved contract <strong t-out="object.name or ''"/>
+        (<t t-out="object.title or ''"/>) and invites you to review and sign it online.</p>
+    <p style="margin: 16px 0;">
+        <a t-att-href="object.get_base_url() + object.get_portal_url()"
+           style="background-color: #875A7B; padding: 8px 16px; color: #fff; border-radius: 5px; text-decoration: none;">
+            Review and sign
+        </a>
+    </p>
+    <p>Regards,<br/><t t-out="object.responsible_id.name or ''"/></p>
+</div>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    SMERP Purchase Requisition workflow:
+      Employee -> Department Manager -> Procurement Review -> Finance approval (by value) -> PO
+    Finance approval follows the authorization matrix:
+      N500,001 - N5m Finance Manager | N5m - N20m Finance Director | > N20m Executive Management
+    Higher sequence = earlier step.
+    -->
+    <record id="tier_pr_dept_manager" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 1 - Department Manager of requester</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">field</field>
+        <field name="reviewer_field_id" ref="field_arco_purchase_request__dept_manager_user_id"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("dept_manager_user_id", "!=", False)]</field>
+        <field name="sequence">50</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_pr_dept_manager_group" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 1 - Department Manager (no manager set on department)</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_dept_manager"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("dept_manager_user_id", "=", False)]</field>
+        <field name="sequence">49</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_pr_procurement" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 2 - Procurement Review</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="purchase.group_purchase_manager"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[]</field>
+        <field name="sequence">40</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_pr_finance_manager" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 3 - Finance Manager (N500,001 - N5m)</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_approver"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("amount_total", "&gt;", 500000), ("amount_total", "&lt;=", 5000000)]</field>
+        <field name="sequence">30</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_pr_finance_director" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 3 - Finance Director (N5m - N20m)</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_finance_director"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("amount_total", "&gt;", 5000000), ("amount_total", "&lt;=", 20000000)]</field>
+        <field name="sequence">20</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+    <record id="tier_pr_executive" model="tier.definition">
+        <field name="company_id" eval="False"/>
+        <field name="name">PR 3 - Executive Management (above N20m)</field>
+        <field name="model_id" ref="model_arco_purchase_request"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="arco_base.group_arco_md"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[("amount_total", "&gt;", 20000000)]</field>
+        <field name="sequence">10</field>
+        <field name="approve_sequence" eval="True"/>
+    </record>
+</odoo>

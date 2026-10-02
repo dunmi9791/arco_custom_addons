@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_customer_receipt_list" model="ir.ui.view">
+        <field name="name">arco.customer.receipt.list</field>
+        <field name="model">arco.customer.receipt</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="journal_id"/>
+                <field name="bank_reference" optional="show"/>
+                <field name="amount" sum="Received"/>
+                <field name="amount_allocated" sum="Applied" optional="show"/>
+                <field name="amount_unallocated" sum="Unapplied" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_customer_receipt_form" model="ir.ui.view">
+        <field name="name">arco.customer.receipt.form</field>
+        <field name="model">arco.customer.receipt</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_load_invoices" string="Load Open Invoices" type="object" invisible="state != 'draft'"/>
+                    <button name="action_auto_allocate" string="Auto-Apply (Oldest First)" type="object" invisible="state != 'draft'"/>
+                    <button name="action_clear_allocation" string="Clear" type="object" invisible="state != 'draft'"/>
+                    <button name="action_post" string="Post Receipt" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state != 'posted'" confirm="Unreconcile and cancel all payments of this receipt?"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money" invisible="payment_count == 0">
+                            <field name="payment_count" widget="statinfo" string="Payments"/>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="bank_reference" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="journal_id" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" readonly="state != 'draft'">
+                        <list editable="bottom">
+                            <field name="move_id"/>
+                            <field name="invoice_date"/>
+                            <field name="invoice_date_due"/>
+                            <field name="amount_total" optional="hide"/>
+                            <field name="amount_residual" sum="Outstanding"/>
+                            <field name="amount_allocated" sum="Applied"/>
+                            <field name="deduction_amount" sum="Deducted" optional="show"/>
+                            <field name="deduction_account_id" optional="show"/>
+                            <field name="deduction_label" optional="hide"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="company_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer">
+                        <field name="amount_allocated"/>
+                        <field name="amount_deducted"/>
+                        <field name="amount_unallocated" class="oe_subtotal_footer_separator"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="action_arco_customer_receipt" model="ir.actions.act_window">
+        <field name="name">Customer Receipts</field>
+        <field name="res_model">arco.customer.receipt</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_arco_customer_receipt" name="Customer Receipts" parent="account.menu_finance_receivables" action="action_arco_customer_receipt" sequence="16"/>
+
+    <record id="res_config_settings_view_form_arco_rct" model="ir.ui.view">
+        <field name="name">res.config.settings.arco.rct</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pay_invoice_online_setting_container']" position="inside">
+                <setting string="Deductions at receipt" help="Default account for WHT/NCD customers deduct when paying">
+                    <field name="arco_receipt_deduction_account_id"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

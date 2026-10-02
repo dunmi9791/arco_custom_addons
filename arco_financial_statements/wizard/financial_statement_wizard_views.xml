@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_fs_wizard_form" model="ir.ui.view">
+        <field name="name">arco.financial.statement.wizard.form</field>
+        <field name="model">arco.financial.statement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Financial Statements">
+                <group>
+                    <group>
+                        <field name="statement" widget="radio"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="branch_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+                    </group>
+                    <group>
+                        <field name="date_from" string="From" invisible="statement == 'bs'"/>
+                        <field name="date_to" string="To / As at"/>
+                        <field name="comparison"/>
+                        <field name="posted_only"/>
+                        <field name="show_accounts"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_view_html" string="View" type="object" class="btn-primary"/>
+                    <button name="action_print_pdf" string="Print PDF" type="object" class="btn-secondary"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_arco_fs_wizard" model="ir.actions.act_window">
+        <field name="name">Financial Statements</field>
+        <field name="res_model">arco.financial.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <record id="action_arco_fs_pl" model="ir.actions.act_window">
+        <field name="name">Profit &amp; Loss</field>
+        <field name="res_model">arco.financial.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_statement': 'pl'}</field>
+    </record>
+    <record id="action_arco_fs_bs" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">arco.financial.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_statement': 'bs'}</field>
+    </record>
+    <record id="action_arco_fs_cf" model="ir.actions.act_window">
+        <field name="name">Cash Flow Statement</field>
+        <field name="res_model">arco.financial.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_statement': 'cf'}</field>
+    </record>
+    <menuitem id="menu_arco_fs_root" name="Financial Statements" parent="account.menu_finance_reports" sequence="1"/>
+    <menuitem id="menu_arco_fs_pl" name="Profit &amp; Loss" parent="menu_arco_fs_root" action="action_arco_fs_pl" sequence="1"/>
+    <menuitem id="menu_arco_fs_bs" name="Balance Sheet" parent="menu_arco_fs_root" action="action_arco_fs_bs" sequence="2"/>
+    <menuitem id="menu_arco_fs_cf" name="Cash Flow Statement" parent="menu_arco_fs_root" action="action_arco_fs_cf" sequence="3"/>
+    <menuitem id="menu_arco_fs_all" name="Financial Statement Pack" parent="menu_arco_fs_root" action="action_arco_fs_wizard" sequence="4"/>
+</odoo>

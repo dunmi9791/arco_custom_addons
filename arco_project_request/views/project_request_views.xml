@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_project_request_list" model="ir.ui.view">
+        <field name="name">arco.project.request.list</field>
+        <field name="model">arco.project.request</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('cancel','rejected')" decoration-info="state == 'submitted'">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="company_id"/>
+                <field name="partner_id"/>
+                <field name="contract_value" sum="Value"/>
+                <field name="budget_total" sum="Budget"/>
+                <field name="expected_margin_pct" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="next_review" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'submitted'" decoration-success="state in ('approved','done')" decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_project_request_form" model="ir.ui.view">
+        <field name="name">arco.project.request.form</field>
+        <field name="model">arco.project.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit to PMO" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_create_project" string="Create Project" type="object" class="btn-primary" invisible="state != 'approved'"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state not in ('submitted','rejected','cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('done','cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_project" type="object" class="oe_stat_button" icon="fa-puzzle-piece" string="Project" invisible="not project_id"/>
+                    </div>
+                    <div class="oe_title">
+                        <span class="text-muted"><field name="name" readonly="1"/></span>
+                        <h1><field name="title" placeholder="e.g. NLNG Train 5 Compressor Overhaul" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" readonly="state != 'draft'"/>
+                            <field name="department_id" readonly="state != 'draft'"/>
+                            <field name="requested_by" readonly="state != 'draft'"/>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="client_reference" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="project_manager_id" readonly="state not in ('draft','approved')"/>
+                            <field name="date_start" readonly="state not in ('draft','approved')"/>
+                            <field name="date_end" readonly="state not in ('draft','approved')"/>
+                            <field name="contract_value" readonly="state != 'draft'"/>
+                            <field name="budget_total"/>
+                            <field name="expected_margin"/>
+                            <field name="expected_margin_pct"/>
+                            <field name="project_id" invisible="not project_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Cost Budget" name="budget">
+                            <field name="budget_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="category_id"/>
+                                    <field name="name"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Resource Plan" name="resources">
+                            <field name="resource_ids" readonly="state in ('done','cancel')">
+                                <list editable="bottom">
+                                    <field name="employee_id"/>
+                                    <field name="job_id"/>
+                                    <field name="role"/>
+                                    <field name="planned_hours" sum="Hours"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Objectives &amp; Scope" name="objective">
+                            <field name="objective" readonly="state != 'draft'"/>
+                        </page>
+                        <page string="Risks / HSE" name="risk">
+                            <field name="risk_notes" readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_arco_project_request_search" model="ir.ui.view">
+        <field name="name">arco.project.request.search</field>
+        <field name="model">arco.project.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="partner_id"/>
+                <filter name="to_review" string="Needs My Approval" domain="[('can_review', '=', True)]"/>
+                <filter name="in_approval" string="In Approval" domain="[('state', '=', 'submitted')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_company" string="Business Unit" context="{'group_by': 'company_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_arco_project_request" model="ir.actions.act_window">
+        <field name="name">Project Requests</field>
+        <field name="res_model">arco.project.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_arco_project_request" name="Project Requests" parent="project.menu_main_pm" action="action_arco_project_request" sequence="2"/>
+
+    <record id="edit_project_arco_request" model="ir.ui.view">
+        <field name="name">project.project.form.arco.request</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="arco_project_costing.edit_project_arco_costing"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='arco_cost_control']" position="after">
+                <page string="Resource Plan" name="arco_resources">
+                    <field name="arco_request_id" readonly="1"/>
+                    <field name="arco_resource_ids">
+                        <list editable="bottom">
+                            <field name="employee_id"/>
+                            <field name="job_id"/>
+                            <field name="role"/>
+                            <field name="planned_hours" sum="Hours"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

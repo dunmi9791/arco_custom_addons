@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_run_invoice,arco.payment.run billing,model_arco_payment_run,account.group_account_invoice,1,1,1,0
+access_run_line_invoice,arco.payment.run.line billing,model_arco_payment_run_line,account.group_account_invoice,1,1,1,1
+access_run_manager,arco.payment.run manager,model_arco_payment_run,account.group_account_manager,1,1,1,1
+access_run_fm,arco.payment.run finance approver,model_arco_payment_run,arco_base.group_arco_finance_approver,1,1,0,0
+access_run_line_fm,arco.payment.run.line finance approver,model_arco_payment_run_line,arco_base.group_arco_finance_approver,1,0,0,0
+access_run_md,arco.payment.run md,model_arco_payment_run,arco_base.group_arco_md,1,1,0,0
+access_run_line_md,arco.payment.run.line md,model_arco_payment_run_line,arco_base.group_arco_md,1,0,0,0
+access_run_auditor,arco.payment.run auditor,model_arco_payment_run,arco_base.group_arco_auditor,1,0,0,0
+access_run_line_auditor,arco.payment.run.line auditor,model_arco_payment_run_line,arco_base.group_arco_auditor,1,0,0,0

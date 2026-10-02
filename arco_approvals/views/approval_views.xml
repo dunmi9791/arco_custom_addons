@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Categories -->
+    <record id="view_arco_approval_category_kanban" model="ir.ui.view">
+        <field name="name">arco.approval.category.kanban</field>
+        <field name="model">arco.approval.category</field>
+        <field name="arch" type="xml">
+            <kanban create="0">
+                <field name="request_count"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold fs-5"/>
+                        <field name="description" class="text-muted small"/>
+                        <div class="d-flex justify-content-between mt-2">
+                            <button name="action_new_request" type="object" class="btn btn-primary btn-sm">New Request</button>
+                            <span t-if="record.request_count.raw_value" class="badge text-bg-info"><t t-esc="record.request_count.value"/> pending</span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_arco_approval_category_list" model="ir.ui.view">
+        <field name="name">arco.approval.category.list</field>
+        <field name="model">arco.approval.category</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="request_type"/>
+                <field name="need_supervisor"/>
+                <field name="need_dept_head"/>
+                <field name="need_finance"/>
+                <field name="executive_rule"/>
+                <field name="executive_threshold"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_approval_category_form" model="ir.ui.view">
+        <field name="name">arco.approval.category.form</field>
+        <field name="model">arco.approval.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Request">
+                            <field name="code"/>
+                            <field name="request_type"/>
+                            <field name="has_amount"/>
+                            <field name="has_partner"/>
+                            <field name="has_period"/>
+                            <field name="requires_document"/>
+                            <field name="auto_execute"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Approval Chain">
+                            <field name="need_supervisor"/>
+                            <field name="need_dept_head"/>
+                            <field name="need_finance"/>
+                            <field name="executive_rule"/>
+                            <field name="executive_threshold" invisible="executive_rule != 'threshold'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Guidance shown to requesters"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Requests -->
+    <record id="view_arco_approval_request_list" model="ir.ui.view">
+        <field name="name">arco.approval.request.list</field>
+        <field name="model">arco.approval.request</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('cancel','rejected')" decoration-info="state == 'submitted'">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="category_id"/>
+                <field name="requested_by" widget="many2one_avatar_user"/>
+                <field name="department_id" optional="show"/>
+                <field name="date"/>
+                <field name="amount" sum="Total" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="next_review" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'submitted'" decoration-success="state in ('approved','done')" decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_approval_request_form" model="ir.ui.view">
+        <field name="name">arco.approval.request.form</field>
+        <field name="model">arco.approval.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_execute" string="Execute" type="object" class="btn-primary" invisible="state != 'approved'"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state not in ('submitted','rejected','cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('done','cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="text-muted"><field name="name" readonly="1"/></span>
+                        <h1><field name="title" placeholder="e.g. Replace Warri yard forklift" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="category_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="requested_by" readonly="state != 'draft'"/>
+                            <field name="department_id" readonly="state != 'draft'"/>
+                            <field name="supervisor_user_id" widget="many2one_avatar_user"/>
+                            <field name="dept_head_user_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <label for="amount" invisible="has_amount == 'no'"/>
+                            <div class="o_row" invisible="has_amount == 'no'">
+                                <field name="amount" readonly="state != 'draft'" required="has_amount == 'required'"/>
+                                <field name="currency_id" readonly="state != 'draft'" groups="base.group_multi_currency"/>
+                            </div>
+                            <field name="partner_id" invisible="has_partner == 'no'" required="has_partner == 'required'" readonly="state != 'draft'"/>
+                            <field name="date_from" invisible="has_period == 'no'" readonly="state != 'draft'"/>
+                            <field name="date_to" invisible="has_period == 'no'" readonly="state != 'draft'"/>
+                            <field name="executive_required"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="has_amount" invisible="1"/>
+                            <field name="has_partner" invisible="1"/>
+                            <field name="has_period" invisible="1"/>
+                            <field name="request_type" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Details" name="details">
+                            <field name="description" readonly="state != 'draft'" placeholder="What is requested and why"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_arco_approval_request_search" model="ir.ui.view">
+        <field name="name">arco.approval.request.search</field>
+        <field name="model">arco.approval.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="category_id"/>
+                <field name="requested_by"/>
+                <filter name="my_requests" string="My Requests" domain="[('requested_by', '=', uid)]"/>
+                <filter name="to_review" string="Needs My Approval" domain="[('can_review', '=', True)]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Type" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_arco_approval_dashboard" model="ir.actions.act_window">
+        <field name="name">New Request</field>
+        <field name="res_model">arco.approval.category</field>
+        <field name="view_mode">kanban</field>
+    </record>
+    <record id="action_arco_approval_my" model="ir.actions.act_window">
+        <field name="name">My Requests</field>
+        <field name="res_model">arco.approval.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_my_requests': 1}</field>
+    </record>
+    <record id="action_arco_approval_to_review" model="ir.actions.act_window">
+        <field name="name">To Review</field>
+        <field name="res_model">arco.approval.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_to_review': 1}</field>
+    </record>
+    <record id="action_arco_approval_all" model="ir.actions.act_window">
+        <field name="name">All Requests</field>
+        <field name="res_model">arco.approval.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_arco_approval_category" model="ir.actions.act_window">
+        <field name="name">Approval Types</field>
+        <field name="res_model">arco.approval.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_arco_approvals_root" name="Approvals" web_icon="base_tier_validation,static/description/icon.png" sequence="45"/>
+    <menuitem id="menu_arco_approvals_new" name="New Request" parent="menu_arco_approvals_root" action="action_arco_approval_dashboard" sequence="1"/>
+    <menuitem id="menu_arco_approvals_my" name="My Requests" parent="menu_arco_approvals_root" action="action_arco_approval_my" sequence="2"/>
+    <menuitem id="menu_arco_approvals_review" name="To Review" parent="menu_arco_approvals_root" action="action_arco_approval_to_review" sequence="3"/>
+    <menuitem id="menu_arco_approvals_all" name="All Requests" parent="menu_arco_approvals_root" action="action_arco_approval_all" sequence="4"/>
+    <menuitem id="menu_arco_approvals_config" name="Configuration" parent="menu_arco_approvals_root" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_arco_approvals_category" name="Approval Types" parent="menu_arco_approvals_config" action="action_arco_approval_category" sequence="1"/>
+</odoo>

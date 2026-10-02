@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_vendor_contract" model="ir.actions.report">
+        <field name="name">Contract Signature Page</field>
+        <field name="model">arco.vendor.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">arco_vendor_contract.report_vendor_contract</field>
+        <field name="report_file">arco_vendor_contract.report_vendor_contract</field>
+        <field name="print_report_name">'Contract %s' % object.name</field>
+        <field name="binding_model_id" ref="model_arco_vendor_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_vendor_contract">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2><span t-field="o.name"/> - <span t-field="o.title"/></h2>
+                        <table class="table table-sm">
+                            <tr><td><strong>Vendor</strong></td><td><span t-field="o.partner_id"/></td>
+                                <td><strong>Type</strong></td><td><span t-field="o.contract_type"/></td></tr>
+                            <tr><td><strong>Value</strong></td><td><span t-field="o.amount"/></td>
+                                <td><strong>Term</strong></td><td><span t-field="o.date_start"/> - <span t-field="o.date_end"/></td></tr>
+                        </table>
+                        <div t-field="o.scope"/>
+                        <h5 class="mt-4">Approvals</h5>
+                        <table class="table table-sm">
+                            <thead><tr><th>Step</th><th>By</th><th>Date</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr t-foreach="o.review_ids" t-as="r">
+                                    <td><span t-field="r.name"/></td><td><span t-field="r.done_by"/></td>
+                                    <td><span t-field="r.reviewed_date"/></td><td><span t-field="r.status"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>For <span t-field="o.company_id.name"/></strong><br/>
+                                <img t-if="o.company_signature" t-att-src="image_data_uri(o.company_signature)" style="max-height: 5rem;"/><br/>
+                                <span t-field="o.company_signed_by"/> <span t-field="o.company_signed_on"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>For <span t-field="o.partner_id.name"/></strong><br/>
+                                <img t-if="o.vendor_signature" t-att-src="image_data_uri(o.vendor_signature)" style="max-height: 5rem;"/><br/>
+                                <span t-field="o.vendor_signed_by"/> <span t-field="o.vendor_signed_on"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

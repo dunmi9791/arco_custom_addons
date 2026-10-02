@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_vendor_contract_list" model="ir.ui.view">
+        <field name="name">arco.vendor.contract.list</field>
+        <field name="model">arco.vendor.contract</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('cancel','rejected','terminated','expired')" decoration-info="state in ('review','signing')">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="partner_id"/>
+                <field name="contract_type" optional="show"/>
+                <field name="amount" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="date_start" optional="show"/>
+                <field name="date_end"/>
+                <field name="responsible_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'" decoration-info="state in ('review','signing','approved')" decoration-danger="state in ('rejected','expired')"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_vendor_contract_form" model="ir.ui.view">
+        <field name="name">arco.vendor.contract.form</field>
+        <field name="model">arco.vendor.contract</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Send for Review" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_send_for_signature" string="Send to Vendor for Signature" type="object" class="btn-primary" invisible="state not in ('approved','signing')"/>
+                    <button name="action_company_sign" string="Sign for ARCO" type="object" invisible="state not in ('approved','signing') or company_signed_on" groups="arco_base.group_arco_md"/>
+                    <button name="action_terminate" string="Terminate" type="object" invisible="state != 'active'" confirm="Terminate this contract?"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state not in ('review','rejected','cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('active','expired','terminated','cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,review,approved,signing,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_preview" type="object" class="oe_stat_button" icon="fa-globe" string="Vendor View" invisible="state not in ('signing','active')"/>
+                    </div>
+                    <div class="oe_title">
+                        <span class="text-muted"><field name="name" readonly="1"/></span>
+                        <h1><field name="title" placeholder="e.g. Marine support vessel charter - Seplat PRJ-003" readonly="state not in ('draft',)"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="vendor_signatory_id" domain="[('parent_id', '=', partner_id)]" readonly="state in ('active','expired','terminated')"/>
+                            <field name="contract_type" readonly="state != 'draft'"/>
+                            <label for="amount"/>
+                            <div class="o_row">
+                                <field name="amount" readonly="state != 'draft'"/>
+                                <field name="currency_id" readonly="state != 'draft'" groups="base.group_multi_currency"/>
+                            </div>
+                            <field name="document" filename="document_name" readonly="state not in ('draft',)"/>
+                            <field name="document_name" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date_start" readonly="state not in ('draft','approved')"/>
+                            <field name="date_end" readonly="state not in ('draft','approved')"/>
+                            <field name="notice_days"/>
+                            <field name="auto_renew"/>
+                            <field name="responsible_id"/>
+                            <field name="project_id"/>
+                            <field name="purchase_ids" widget="many2many_tags"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Scope / Key Terms" name="scope">
+                            <field name="scope" readonly="state != 'draft'"/>
+                        </page>
+                        <page string="Signatures" name="signatures" invisible="state in ('draft','review','rejected','cancel')">
+                            <group>
+                                <group string="ARCO">
+                                    <field name="company_signature" widget="signature" readonly="company_signed_on"/>
+                                    <field name="company_signed_by"/>
+                                    <field name="company_signed_on"/>
+                                </group>
+                                <group string="Vendor">
+                                    <field name="vendor_signature" widget="image" readonly="1"/>
+                                    <field name="vendor_signed_by"/>
+                                    <field name="vendor_signed_on"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_arco_vendor_contract_search" model="ir.ui.view">
+        <field name="name">arco.vendor.contract.search</field>
+        <field name="model">arco.vendor.contract</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="partner_id"/>
+                <filter name="to_review" string="Needs My Approval" domain="[('can_review', '=', True)]"/>
+                <filter name="in_review" string="In Review" domain="[('state', '=', 'review')]"/>
+                <filter name="signing" string="Out for Signature" domain="[('state', '=', 'signing')]"/>
+                <filter name="active" string="Active" domain="[('state', '=', 'active')]"/>
+                <separator/>
+                <filter name="expiring" string="Expiring in 60 days" domain="[('state', '=', 'active'), ('date_end', '&lt;=', (context_today() + relativedelta(days=60)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'contract_type'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_arco_vendor_contract" model="ir.actions.act_window">
+        <field name="name">Vendor Contracts</field>
+        <field name="res_model">arco.vendor.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_arco_vendor_contract_repository" model="ir.actions.act_window">
+        <field name="name">Contract Repository</field>
+        <field name="res_model">arco.vendor.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ('active', 'expired', 'terminated'))]</field>
+        <field name="context">{'search_default_group_vendor': 1}</field>
+    </record>
+    <menuitem id="menu_arco_contract_root" name="Contracts" parent="purchase.menu_purchase_root" sequence="15"/>
+    <menuitem id="menu_arco_contract" name="Vendor Contracts" parent="menu_arco_contract_root" action="action_arco_vendor_contract" sequence="1"/>
+    <menuitem id="menu_arco_contract_repo" name="Contract Repository" parent="menu_arco_contract_root" action="action_arco_vendor_contract_repository" sequence="2"/>
+
+    <record id="purchase_order_form_arco_contract" model="ir.ui.view">
+        <field name="name">purchase.order.form.arco.contract</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_ref" position="after">
+                <field name="arco_contract_ids" widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+</odoo>

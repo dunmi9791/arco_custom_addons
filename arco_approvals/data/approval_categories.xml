@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cat_capex" model="arco.approval.category">
+        <field name="name">CapEx Request</field>
+        <field name="code">CAPEX</field>
+        <field name="sequence">10</field>
+        <field name="request_type">capex</field>
+        <field name="has_amount">required</field>
+        <field name="has_partner">optional</field>
+        <field name="requires_document" eval="True"/>
+        <field name="executive_rule">always</field>
+        <field name="description">Capital expenditure (equipment, vessels, vehicles, IT) - attach the business case and quotation.</field>
+    </record>
+    <record id="cat_spend" model="arco.approval.category">
+        <field name="name">Spending Request</field>
+        <field name="code">SPEND</field>
+        <field name="sequence">20</field>
+        <field name="request_type">spend</field>
+        <field name="has_amount">required</field>
+        <field name="has_partner">optional</field>
+        <field name="executive_rule">threshold</field>
+        <field name="executive_threshold">20000000</field>
+        <field name="description">Non-PO spend that needs prior approval (sponsorships, one-off services, advances).</field>
+    </record>
+    <record id="cat_vendor_onboarding" model="arco.approval.category">
+        <field name="name">Vendor Onboarding</field>
+        <field name="code">VENDOR</field>
+        <field name="sequence">30</field>
+        <field name="request_type">vendor_onboarding</field>
+        <field name="has_amount">no</field>
+        <field name="has_partner">required</field>
+        <field name="requires_document" eval="True"/>
+        <field name="need_supervisor" eval="False"/>
+        <field name="executive_rule">never</field>
+        <field name="description">New vendor: attach CAC, TIN, NCDMB/NOGICD, NipeX/JQS, bank reference letter and HSE documents. On approval the vendor is flagged "Approved Vendor".</field>
+    </record>
+    <record id="cat_general" model="arco.approval.category">
+        <field name="name">General Request</field>
+        <field name="code">GEN</field>
+        <field name="sequence">90</field>
+        <field name="request_type">generic</field>
+        <field name="has_amount">optional</field>
+        <field name="has_period">optional</field>
+        <field name="need_finance" eval="False"/>
+        <field name="executive_rule">never</field>
+    </record>
+</odoo>

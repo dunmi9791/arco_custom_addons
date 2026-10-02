@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_arco" model="ir.ui.view">
+        <field name="name">sale.order.form.arco.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning mb-0" role="alert" invisible="not arco_stock_warning or state not in ('draft','sent')">
+                    <strong>Stock availability: </strong><field name="arco_stock_warning" nolabel="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//group[@name='order_details']//field[@name='payment_term_id']" position="after">
+                <field name="arco_max_discount" invisible="arco_max_discount == 0"/>
+                <field name="arco_discount_band" invisible="arco_max_discount == 0" widget="badge"
+                       decoration-success="arco_discount_band == 'exec'" decoration-warning="arco_discount_band == 'manager'"
+                       decoration-danger="arco_discount_band == 'director'"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="res_config_settings_view_form_arco_sale" model="ir.ui.view">
+        <field name="name">res.config.settings.arco.sale</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='sale_management']" position="inside">
+                <block title="ARCO Order-to-Cash" id="arco_sale_controls">
+                    <setting string="Stock check on confirmation" help="Warn or block when storable products are not available in the order's warehouse">
+                        <field name="arco_sale_stock_policy"/>
+                    </setting>
+                    <setting string="Invoice on confirmation" help="Create the customer invoice as soon as the order is confirmed (ordered-quantity products)">
+                        <field name="arco_sale_auto_invoice"/>
+                        <div class="content-group" invisible="not arco_sale_auto_invoice">
+                            <field name="arco_sale_auto_post"/> <label for="arco_sale_auto_post" string="Post it automatically"/>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

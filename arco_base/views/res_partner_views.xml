@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_arco" model="ir.ui.view">
+        <field name="name">res.partner.form.arco</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="ARCO Compliance" name="arco_compliance">
+                    <group>
+                        <group string="Registration">
+                            <field name="arco_tin"/>
+                            <field name="arco_rc_number"/>
+                            <field name="arco_vendor_category"/>
+                            <field name="arco_vendor_approved"/>
+                        </group>
+                        <group string="Oil &amp; Gas Prequalification">
+                            <field name="arco_nipex_number"/>
+                            <field name="arco_ncdmb_registered"/>
+                            <field name="arco_ncdmb_expiry" invisible="not arco_ncdmb_registered"/>
+                            <field name="arco_compliance_expired" invisible="1"/>
+                            <div class="text-danger" colspan="2" invisible="not arco_compliance_expired">
+                                NCDMB certificate has expired.
+                            </div>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_res_partner_filter_arco" model="ir.ui.view">
+        <field name="name">res.partner.search.arco</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="arco_tin"/>
+                <filter name="arco_approved" string="Approved Vendors" domain="[('arco_vendor_approved','=',True)]"/>
+                <filter name="arco_unapproved_vendors" string="Unapproved Vendors" domain="[('supplier_rank','&gt;',0),('arco_vendor_approved','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_vendor_category" string="Vendor Category" context="{'group_by': 'arco_vendor_category'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

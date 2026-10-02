@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_arco_payment_run_list" model="ir.ui.view">
+        <field name="name">arco.payment.run.list</field>
+        <field name="model">arco.payment.run</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('cancel','rejected')" decoration-info="state == 'submitted'">
+                <field name="name"/>
+                <field name="payment_date"/>
+                <field name="journal_id"/>
+                <field name="prepared_by" widget="many2one_avatar_user"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge" decoration-info="state == 'submitted'" decoration-success="state in ('approved','paid')" decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_arco_payment_run_form" model="ir.ui.view">
+        <field name="name">arco.payment.run.form</field>
+        <field name="model">arco.payment.run</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_load_due_bills" string="Load Due Bills" type="object" invisible="state != 'draft'"/>
+                    <button name="action_submit" string="Submit for Approval" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_pay" string="Create Payments" type="object" class="btn-primary" invisible="state != 'approved'" groups="account.group_account_invoice"/>
+                    <button name="action_export_bank_file" string="Bank Upload File" type="object" invisible="state not in ('approved','paid')"/>
+                    <button name="action_send_remittance" string="Send Remittance Advice" type="object" invisible="state != 'paid'"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state not in ('submitted','rejected','cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('paid','cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money" invisible="payment_count == 0">
+                            <field name="payment_count" widget="statinfo" string="Payments"/>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="journal_id" readonly="state != 'draft'"/>
+                            <field name="payment_date" readonly="state not in ('draft','approved')"/>
+                            <field name="narration" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="due_date_limit" readonly="state != 'draft'"/>
+                            <field name="partner_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                            <field name="prepared_by"/>
+                            <field name="bank_file_id" invisible="not bank_file_id"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" readonly="state != 'draft'">
+                        <list editable="bottom">
+                            <field name="move_id"/>
+                            <field name="partner_id"/>
+                            <field name="bill_ref" optional="show"/>
+                            <field name="invoice_date_due"/>
+                            <field name="amount_residual" sum="Outstanding"/>
+                            <field name="amount_to_pay" sum="To Pay"/>
+                            <field name="partner_bank_id"/>
+                            <field name="payment_id" optional="show"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="company_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer"><field name="amount_total"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_arco_payment_run_search" model="ir.ui.view">
+        <field name="name">arco.payment.run.search</field>
+        <field name="model">arco.payment.run</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="line_ids" string="Vendor" filter_domain="[('line_ids.partner_id', 'ilike', self)]"/>
+                <filter name="to_approve" string="Awaiting Approval" domain="[('state', '=', 'submitted')]"/>
+                <filter name="my_review" string="Needs My Approval" domain="[('can_review', '=', True)]"/>
+                <filter name="to_pay" string="Approved, Not Paid" domain="[('state', '=', 'approved')]"/>
+            </search>
+        </field>
+    </record>
+    <record id="action_arco_payment_run" model="ir.actions.act_window">
+        <field name="name">Payment Vouchers</field>
+        <field name="res_model">arco.payment.run</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_arco_payment_run" name="Payment Vouchers" parent="account.menu_finance_payables" action="action_arco_payment_run" sequence="25"/>
+
+    <record id="res_config_settings_view_form_arco_pv" model="ir.ui.view">
+        <field name="name">res.config.settings.arco.pv</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pay_invoice_online_setting_container']" position="after">
+                <block title="ARCO Payment Control" id="arco_payment_control">
+                    <setting string="Payment Vouchers" help="Vendor bills can only be paid from an approved Payment Voucher">
+                        <field name="arco_require_payment_voucher"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

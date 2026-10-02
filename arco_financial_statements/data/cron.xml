@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_arco_monthly_pl" model="ir.cron">
+        <field name="name">ARCO: Email monthly P&amp;L to management</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_arco_monthly_pl()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="nextcall" eval="(DateTime.now().replace(day=1, hour=6, minute=0, second=0) + relativedelta(months=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+</odoo>
